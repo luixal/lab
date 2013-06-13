@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <item android:drawable="@drawable/nfc_icon_01" android:duration="167"/>
+    <item android:drawable="@drawable/nfc_icon_012" android:duration="167"/>
+    <item android:drawable="@drawable/nfc_icon_0123" android:duration="167"/>
+    <item android:drawable="@drawable/nfc_icon_0123" android:duration="167"/>
+    <item android:drawable="@drawable/nfc_icon_012" android:duration="167"/>
+    <item android:drawable="@drawable/nfc_icon_01" android:duration="167"/>
+
+</animation-list>

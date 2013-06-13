@@ -1,0 +1,37 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity" >
+
+    <ImageView android:id="@+id/nfc_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxWidth="200dp"
+        android:maxHeight="200dp"
+        android:adjustViewBounds="true"
+        android:layout_centerInParent="true"
+        android:src="@drawable/signal_waves"/>
+    
+    <TextView android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_above="@id/nfc_logo"
+        android:gravity="center"
+        android:text="@string/title"
+        style="@android:style/TextAppearance.Large"
+        android:layout_marginBottom="15dp"/>
+    
+    <TextView android:id="@+id/text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_below="@id/nfc_logo"
+        android:gravity="center"
+        style="@android:style/TextAppearance.Large"
+        android:layout_marginTop="15dp"/>
+
+</RelativeLayout>
