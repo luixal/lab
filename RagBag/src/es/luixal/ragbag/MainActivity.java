@@ -1,10 +1,11 @@
 package es.luixal.ragbag;
 
-import android.app.Activity;
+import java.util.LinkedList;
+
+import android.app.ListActivity;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.drawable.AnimationDrawable;
 import android.nfc.NfcAdapter;
 import android.nfc.tech.IsoDep;
 import android.nfc.tech.MifareClassic;
@@ -15,12 +16,11 @@ import android.nfc.tech.NfcB;
 import android.nfc.tech.NfcF;
 import android.nfc.tech.NfcV;
 import android.os.Bundle;
-import android.text.Html;
 import android.view.Menu;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.ArrayAdapter;
+import android.widget.Toast;
 
-public class MainActivity extends Activity {
+public class MainActivity extends ListActivity {
 	
 	// list of NFC technologies detected:
 	private final String[][] techList = new String[][] {
@@ -35,10 +35,16 @@ public class MainActivity extends Activity {
 			}
 	};
 	
+	private LinkedList<String> items;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main_activity);
+//		setContentView(R.layout.main_activity);
+		setContentView(R.layout.main_list);
+		if (this.items == null) this.items = new LinkedList<String>();
+		this.setListAdapter(new TagsListAdapter(this, this.items));
+		this.getListView().setSaveEnabled(true);
 	}
 
 	@Override
@@ -72,41 +78,34 @@ public class MainActivity extends Activity {
 	}
 	
 	@Override
+	protected void onStop() {
+		super.onStop();
+		if (this.items != null && !this.items.isEmpty()) {
+			// save items!
+			Toast.makeText(this, "save items here!", Toast.LENGTH_SHORT).show();
+		}
+	}
+	
+	@Override
 	protected void onNewIntent(final Intent intent) {
 		if (intent.getAction().equals(NfcAdapter.ACTION_TAG_DISCOVERED)) {
 			
-//			Animation animation = AnimationUtils.loadAnimation(this, R.anim.rotate);
-//			animation.setAnimationListener(new AnimationListener() {
-//				
-//				@Override
-//				public void onAnimationStart(Animation animation) {}
-//				
-//				@Override
-//				public void onAnimationRepeat(Animation animation) {}
-//				
-//				@Override
-//				public void onAnimationEnd(Animation animation) {
-//					((TextView)findViewById(R.id.text)).setText(
-//							"NFC Tag\n" + 
-//							ByteArrayToHexString(intent.getByteArrayExtra(NfcAdapter.EXTRA_ID)));
-//				}
-//			});
+//			ImageView iv = (ImageView)findViewById(R.id.nfc_logo);
+//			iv.setImageBitmap(null);
+//			iv.setImageResource(R.drawable.signal_waves);
+//			
+//			
+//			AnimationDrawable animationDrawable = (AnimationDrawable)iv.getDrawable();
+//			animationDrawable.setOneShot(true);
+//			animationDrawable.start();
+//			
+//			((TextView)findViewById(R.id.text)).setText(
+//					Html.fromHtml("NFC Tag<br />" + 
+//					"<b>" + ByteArrayToHexString(intent.getByteArrayExtra(NfcAdapter.EXTRA_ID)) + "</b>"));
+//			
+			this.items.add(ByteArrayToHexString(intent.getByteArrayExtra(NfcAdapter.EXTRA_ID)));
+			((ArrayAdapter)this.getListAdapter()).notifyDataSetChanged();
 			
-			ImageView iv = (ImageView)findViewById(R.id.nfc_logo);
-			iv.setImageBitmap(null);
-			iv.setImageResource(R.drawable.signal_waves);
-			
-			
-			AnimationDrawable animationDrawable = (AnimationDrawable)iv.getDrawable();
-			animationDrawable.setOneShot(true);
-//			animationDrawable.setCallback(iv);
-			animationDrawable.start();
-			
-			((TextView)findViewById(R.id.text)).setText(
-					Html.fromHtml("NFC Tag<br />" + 
-					"<b>" + ByteArrayToHexString(intent.getByteArrayExtra(NfcAdapter.EXTRA_ID)) + "</b>"));
-			
-//			findViewById(R.id.nfc_logo).startAnimation(animation);
 		}
 	}
 	
@@ -115,14 +114,14 @@ public class MainActivity extends Activity {
 	    String [] hex = {"0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"};
 	    String out= "";
 	
-	    for(j = 0 ; j < inarray.length ; ++j) 
-	        {
+	    for(j = 0 ; j < inarray.length ; ++j) {
 	        in = (int) inarray[j] & 0xff;
 	        i = (in >> 4) & 0x0f;
 	        out += hex[i];
 	        i = in & 0x0f;
 	        out += hex[i];
-	        }
+	    }
+	    
 	    return out;
 	}
 

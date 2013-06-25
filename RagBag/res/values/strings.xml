@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">RagBag</string>
-    <string name="title">Just touch and NFC Tag!</string>
+    <string name="title">Just touch a tag!</string>
     <string name="menu_settings">Settings</string>
 
 </resources>
