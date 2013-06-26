@@ -17,7 +17,7 @@ public class TagsListAdapter extends ArrayAdapter<String> {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		if (convertView == null) convertView = View.inflate(this.getContext(), R.layout.tag_list_item, null);
-		((TextView)convertView.findViewById(R.id.id)).setText(position + 1 + ".");
+		((TextView)convertView.findViewById(R.id.id)).setText(position + 1 + "");
 		((TextView)convertView.findViewById(R.id.uid)).setText(this.getItem(position));
 		return convertView;
 	}

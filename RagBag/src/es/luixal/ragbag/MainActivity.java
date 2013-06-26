@@ -1,6 +1,8 @@
 package es.luixal.ragbag;
 
-import java.util.LinkedList;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 
 import android.app.ListActivity;
 import android.app.PendingIntent;
@@ -16,11 +18,17 @@ import android.nfc.tech.NfcB;
 import android.nfc.tech.NfcF;
 import android.nfc.tech.NfcV;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.Toast;
 
 public class MainActivity extends ListActivity {
+	
+	private final String KEY_ITEMS = "ITEMS";
 	
 	// list of NFC technologies detected:
 	private final String[][] techList = new String[][] {
@@ -35,16 +43,18 @@ public class MainActivity extends ListActivity {
 			}
 	};
 	
-	private LinkedList<String> items;
+	private ArrayList<String> items;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 //		setContentView(R.layout.main_activity);
 		setContentView(R.layout.main_list);
-		if (this.items == null) this.items = new LinkedList<String>();
-		this.setListAdapter(new TagsListAdapter(this, this.items));
-		this.getListView().setSaveEnabled(true);
+		if (savedInstanceState != null && savedInstanceState.containsKey(KEY_ITEMS)) {
+			this.items = savedInstanceState.getStringArrayList(KEY_ITEMS);
+		} else {
+			this.items = new ArrayList<String>();
+		}
 	}
 
 	@Override
@@ -52,6 +62,32 @@ public class MainActivity extends ListActivity {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main_activity, menu);
 		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.export:
+			File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "saved.xls");
+			try {
+				Utils.exportToExcel(this.items, file.getAbsolutePath());
+				Toast.makeText(this, "Excel file saved!\n" + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+			} catch (IOException e) {
+				Toast.makeText(this, "ERROR saving Excel file", Toast.LENGTH_SHORT).show();
+				e.printStackTrace();
+			}
+			break;
+
+		default:
+			break;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+	
+	@Override
+	protected void onStart() {
+		super.onStart();
+		this.setListAdapter(new TagsListAdapter(this, this.items));
 	}
 	
 	@Override
@@ -70,6 +106,12 @@ public class MainActivity extends ListActivity {
 	}
 	
 	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putStringArrayList(KEY_ITEMS, this.items);
+	}
+	
+	@Override
 	protected void onPause() {
 		super.onPause();
 		// disabling foreground dispatch:
@@ -78,51 +120,18 @@ public class MainActivity extends ListActivity {
 	}
 	
 	@Override
-	protected void onStop() {
-		super.onStop();
-		if (this.items != null && !this.items.isEmpty()) {
-			// save items!
-			Toast.makeText(this, "save items here!", Toast.LENGTH_SHORT).show();
+	protected void onNewIntent(final Intent intent) {
+		if (intent.getAction().equals(NfcAdapter.ACTION_TAG_DISCOVERED)) {
+			this.items.add(Utils.byteArrayToHexString(intent.getByteArrayExtra(NfcAdapter.EXTRA_ID)));
+			((ArrayAdapter)this.getListAdapter()).notifyDataSetChanged();
 		}
 	}
 	
 	@Override
-	protected void onNewIntent(final Intent intent) {
-		if (intent.getAction().equals(NfcAdapter.ACTION_TAG_DISCOVERED)) {
-			
-//			ImageView iv = (ImageView)findViewById(R.id.nfc_logo);
-//			iv.setImageBitmap(null);
-//			iv.setImageResource(R.drawable.signal_waves);
-//			
-//			
-//			AnimationDrawable animationDrawable = (AnimationDrawable)iv.getDrawable();
-//			animationDrawable.setOneShot(true);
-//			animationDrawable.start();
-//			
-//			((TextView)findViewById(R.id.text)).setText(
-//					Html.fromHtml("NFC Tag<br />" + 
-//					"<b>" + ByteArrayToHexString(intent.getByteArrayExtra(NfcAdapter.EXTRA_ID)) + "</b>"));
-//			
-			this.items.add(ByteArrayToHexString(intent.getByteArrayExtra(NfcAdapter.EXTRA_ID)));
-			((ArrayAdapter)this.getListAdapter()).notifyDataSetChanged();
-			
-		}
-	}
-	
-	private String ByteArrayToHexString(byte [] inarray) {
-	    int i, j, in;
-	    String [] hex = {"0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"};
-	    String out= "";
-	
-	    for(j = 0 ; j < inarray.length ; ++j) {
-	        in = (int) inarray[j] & 0xff;
-	        i = (in >> 4) & 0x0f;
-	        out += hex[i];
-	        i = in & 0x0f;
-	        out += hex[i];
-	    }
-	    
-	    return out;
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		super.onListItemClick(l, v, position, id);
+		this.items.remove(position);
+		((ArrayAdapter)this.getListAdapter()).notifyDataSetChanged();
 	}
 
 }

@@ -4,5 +4,6 @@
     <string name="app_name">RagBag</string>
     <string name="title">Just touch a tag!</string>
     <string name="menu_settings">Settings</string>
+    <string name="menu_export">Export</string>
 
 </resources>
