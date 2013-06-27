@@ -4,10 +4,15 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.PendingIntent;
+import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.nfc.NfcAdapter;
 import android.nfc.tech.IsoDep;
 import android.nfc.tech.MifareClassic;
@@ -21,9 +26,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.Toast;
 
 public class MainActivity extends ListActivity {
@@ -68,16 +71,56 @@ public class MainActivity extends ListActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.export:
-			File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "saved.xls");
-			try {
-				Utils.exportToExcel(this.items, file.getAbsolutePath());
-				Toast.makeText(this, "Excel file saved!\n" + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
-			} catch (IOException e) {
-				Toast.makeText(this, "ERROR saving Excel file", Toast.LENGTH_SHORT).show();
-				e.printStackTrace();
+			if (this.items != null && !this.items.isEmpty()) {
+				File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "saved.xls");
+				try {
+					
+					Utils.exportToExcel(this.items, file.getAbsolutePath());
+					Toast.makeText(this, "Excel file saved!\n" + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+					
+					Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+					sharingIntent.setType("application/vnd.ms-excel");
+					sharingIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+					
+					try {
+						startActivity(sharingIntent);
+					} catch (ActivityNotFoundException ex) {
+						Toast.makeText(this, "Excel file saved!\n", Toast.LENGTH_SHORT).show();
+					}
+					
+				} catch (IOException e) {
+					Toast.makeText(this, "ERROR saving Excel file", Toast.LENGTH_SHORT).show();
+					e.printStackTrace();
+				}
+			} else {
+				Toast.makeText(this, "No data to export", Toast.LENGTH_SHORT).show();
 			}
 			break;
-
+			
+		case R.id.remove:
+			if (this.items != null && !this.items.isEmpty()) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(this);
+				builder.setMessage("Are you sure you wanto to remove ALL LIST ITEMS?");
+				builder.setPositiveButton("YES", new OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						items.clear();
+						((ArrayAdapter)getListAdapter()).notifyDataSetChanged();
+						dialog.dismiss();
+					}
+				});
+				builder.setNegativeButton("No", new OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.dismiss();
+					}
+				});
+				builder.create().show();
+			}
+			break;
+			
 		default:
 			break;
 		}
@@ -122,16 +165,21 @@ public class MainActivity extends ListActivity {
 	@Override
 	protected void onNewIntent(final Intent intent) {
 		if (intent.getAction().equals(NfcAdapter.ACTION_TAG_DISCOVERED)) {
-			this.items.add(Utils.byteArrayToHexString(intent.getByteArrayExtra(NfcAdapter.EXTRA_ID)));
-			((ArrayAdapter)this.getListAdapter()).notifyDataSetChanged();
+			String uid = Utils.byteArrayToHexString(intent.getByteArrayExtra(NfcAdapter.EXTRA_ID));
+			if (this.items.contains(uid)) {
+				Toast.makeText(this, "ERROR! Tag repetido en la posición " + this.items.indexOf(uid) + "!", Toast.LENGTH_SHORT).show();
+			} else {
+				this.items.add(uid);
+				((ArrayAdapter)this.getListAdapter()).notifyDataSetChanged();
+			}
 		}
 	}
 	
-	@Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-		super.onListItemClick(l, v, position, id);
-		this.items.remove(position);
-		((ArrayAdapter)this.getListAdapter()).notifyDataSetChanged();
-	}
+//	@Override
+//	protected void onListItemClick(ListView l, View v, int position, long id) {
+//		super.onListItemClick(l, v, position, id);
+//		this.items.remove(position);
+//		((ArrayAdapter)this.getListAdapter()).notifyDataSetChanged();
+//	}
 
 }

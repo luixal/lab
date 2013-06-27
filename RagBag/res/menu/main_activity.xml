@@ -9,6 +9,11 @@
     <item android:id="@+id/export"
         android:showAsAction="always"
         android:title="@string/menu_export"
-        android:icon="@android:drawable/ic_menu_edit"/>
+        android:icon="@android:drawable/ic_menu_share"/>
+    
+    <item android:id="@+id/remove"
+        android:showAsAction="always"
+        android:title="@string/menu_remove"
+        android:icon="@android:drawable/ic_menu_delete"/>
 
 </menu>
