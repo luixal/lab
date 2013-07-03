@@ -60,4 +60,33 @@ public class Utils {
         // dispose of temporary files backing this workbook on disk
 //        wb.dispose();
 	}
+	
+	public static void exportToExcel(ArrayList<String> items, int counterOffset, String filename) throws IOException {
+		// creating workbook and sheet:
+		Workbook wb = new HSSFWorkbook();
+        Sheet sh = wb.createSheet();
+        // cell used for every operations (avoiding freeing and reserving memory :P)
+        Cell cell = null;
+        // creating headers row:
+        Row headers = sh.createRow(0);
+        cell = headers.createCell(0);
+        cell.setCellValue("Tag Núm");
+        cell = headers.createCell(1);
+        cell.setCellValue("Tag UID");
+        // generating rows:
+        for (int i = 0; i < items.size(); i++) {
+        	// creating new row:
+        	Row row = sh.createRow(i+1);
+        	// creating new cell with "i" value:
+        	cell = row.createCell(0);
+        	cell.setCellValue(i+counterOffset);
+        	// creating new cell with tag UID value:
+        	cell = row.createCell(1);
+        	cell.setCellValue(items.get(i));
+        }
+        // writing file:
+        FileOutputStream out = new FileOutputStream(filename);
+        wb.write(out);
+        out.close();
+	}
 }

@@ -6,6 +6,11 @@
         android:showAsAction="never"
         android:title="@string/menu_settings"/>
     
+    <item android:id="@+id/count_init"
+        android:showAsAction="always"
+        android:title="@string/menu_count_init"
+        android:icon="@android:drawable/ic_menu_set_as"/>
+    
     <item android:id="@+id/export"
         android:showAsAction="always"
         android:title="@string/menu_export"

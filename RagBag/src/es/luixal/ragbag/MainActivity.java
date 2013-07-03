@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.app.ListActivity;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
@@ -27,6 +28,8 @@ import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends ListActivity {
@@ -47,6 +50,7 @@ public class MainActivity extends ListActivity {
 	};
 	
 	private ArrayList<String> items;
+	private int counterInit = 0;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +79,11 @@ public class MainActivity extends ListActivity {
 				File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "saved.xls");
 				try {
 					
-					Utils.exportToExcel(this.items, file.getAbsolutePath());
+					if (this.counterInit == 0) {
+						Utils.exportToExcel(this.items, file.getAbsolutePath());
+					} else {
+						Utils.exportToExcel(this.items, this.counterInit, file.getAbsolutePath());
+					}
 					Toast.makeText(this, "Excel file saved!\n" + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
 					
 					Intent sharingIntent = new Intent(Intent.ACTION_SEND);
@@ -120,6 +128,27 @@ public class MainActivity extends ListActivity {
 				builder.create().show();
 			}
 			break;
+			
+		case R.id.count_init:
+			final EditText et = new EditText(this);
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setTitle("Counter init");
+			builder.setView(et);
+			builder.setPositiveButton("Ok", new OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					counterInit = Integer.parseInt(et.getText().toString());
+				}
+			});
+			builder.setNegativeButton("Cancel", new OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+				}
+			});
+			builder.create().show();
 			
 		default:
 			break;
