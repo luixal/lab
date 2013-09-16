@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">example</string>
+    <string name="action_play">Query!</string>
+    <string name="status_querying">Querying URL&#8230;</string>
+    <string name="status_success">SUCCESS!</string>
+    <string name="status_failure">FAILURE!</string>
+
+</resources>
