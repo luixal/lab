@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.app.ListActivity;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
@@ -29,7 +28,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends ListActivity {
@@ -114,7 +112,7 @@ public class MainActivity extends ListActivity {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						items.clear();
-						((ArrayAdapter)getListAdapter()).notifyDataSetChanged();
+						((ArrayAdapter<?>)getListAdapter()).notifyDataSetChanged();
 						dialog.dismiss();
 					}
 				});
@@ -196,10 +194,10 @@ public class MainActivity extends ListActivity {
 		if (intent.getAction().equals(NfcAdapter.ACTION_TAG_DISCOVERED)) {
 			String uid = Utils.byteArrayToHexString(intent.getByteArrayExtra(NfcAdapter.EXTRA_ID));
 			if (this.items.contains(uid)) {
-				Toast.makeText(this, "ERROR! Tag repetido en la posición " + this.items.indexOf(uid) + "!", Toast.LENGTH_SHORT).show();
+				Toast.makeText(this, "ERROR! Tag repetido en la posiciï¿½n " + this.items.indexOf(uid) + "!", Toast.LENGTH_SHORT).show();
 			} else {
 				this.items.add(uid);
-				((ArrayAdapter)this.getListAdapter()).notifyDataSetChanged();
+				((ArrayAdapter<?>)this.getListAdapter()).notifyDataSetChanged();
 			}
 		}
 	}
