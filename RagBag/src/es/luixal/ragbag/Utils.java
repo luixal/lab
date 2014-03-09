@@ -29,7 +29,7 @@ public class Utils {
 	    return out;
 	}
 	
-	public static void exportToExcel(ArrayList<String> items, String filename) throws IOException {
+	public static void exportToExcel(ArrayList<Tag> items, String filename) throws IOException {
 		// creating workbook and sheet:
 //		SXSSFWorkbook wb = new SXSSFWorkbook(100); // keep 100 rows in memory, exceeding rows will be flushed to disk
 		Workbook wb = new HSSFWorkbook();
@@ -39,8 +39,10 @@ public class Utils {
         // creating headers row:
         Row headers = sh.createRow(0);
         cell = headers.createCell(0);
-        cell.setCellValue("Tag Núm");
+        cell.setCellValue("Tag Number");
         cell = headers.createCell(1);
+        cell.setCellValue("Tag Name");
+        cell = headers.createCell(2);
         cell.setCellValue("Tag UID");
         // generating rows:
         for (int i = 0; i < items.size(); i++) {
@@ -49,9 +51,12 @@ public class Utils {
         	// creating new cell with "i" value:
         	cell = row.createCell(0);
         	cell.setCellValue(i+1);
-        	// creating new cell with tag UID value:
+        	// creating new cell with Tag name:
         	cell = row.createCell(1);
-        	cell.setCellValue(items.get(i));
+        	cell.setCellValue(items.get(i).getName());
+        	// creating new cell with tag UID value:
+        	cell = row.createCell(2);
+        	cell.setCellValue(items.get(i).getUuid());
         }
         // writing file:
         FileOutputStream out = new FileOutputStream(filename);
@@ -61,7 +66,7 @@ public class Utils {
 //        wb.dispose();
 	}
 	
-	public static void exportToExcel(ArrayList<String> items, int counterOffset, String filename) throws IOException {
+	public static void exportToExcel(ArrayList<Tag> items, int counterOffset, String filename) throws IOException {
 		// creating workbook and sheet:
 		Workbook wb = new HSSFWorkbook();
         Sheet sh = wb.createSheet();
@@ -70,8 +75,10 @@ public class Utils {
         // creating headers row:
         Row headers = sh.createRow(0);
         cell = headers.createCell(0);
-        cell.setCellValue("Tag Núm");
+        cell.setCellValue("Tag Num");
         cell = headers.createCell(1);
+        cell.setCellValue("Tag Name");
+        cell = headers.createCell(2);
         cell.setCellValue("Tag UID");
         // generating rows:
         for (int i = 0; i < items.size(); i++) {
@@ -80,9 +87,12 @@ public class Utils {
         	// creating new cell with "i" value:
         	cell = row.createCell(0);
         	cell.setCellValue(i+counterOffset);
-        	// creating new cell with tag UID value:
+        	// creating new cell with tag name:
         	cell = row.createCell(1);
-        	cell.setCellValue(items.get(i));
+        	cell.setCellValue(items.get(i).getName());
+        	// creating new cell with tag UID value:
+        	cell = row.createCell(2);
+        	cell.setCellValue(items.get(i).getUuid());
         }
         // writing file:
         FileOutputStream out = new FileOutputStream(filename);

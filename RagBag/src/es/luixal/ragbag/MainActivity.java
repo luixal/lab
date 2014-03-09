@@ -26,8 +26,10 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Toast;
 
 public class MainActivity extends ListActivity {
@@ -47,7 +49,7 @@ public class MainActivity extends ListActivity {
 			}
 	};
 	
-	private ArrayList<String> items;
+	private ArrayList<Tag> items;
 	private int counterInit = 0;
 	
 	@Override
@@ -56,9 +58,10 @@ public class MainActivity extends ListActivity {
 //		setContentView(R.layout.main_activity);
 		setContentView(R.layout.main_list);
 		if (savedInstanceState != null && savedInstanceState.containsKey(KEY_ITEMS)) {
-			this.items = savedInstanceState.getStringArrayList(KEY_ITEMS);
+//			this.items = savedInstanceState.getStringArrayList(KEY_ITEMS);
+			this.items = savedInstanceState.getParcelableArrayList(KEY_ITEMS);
 		} else {
-			this.items = new ArrayList<String>();
+			this.items = new ArrayList<Tag>();
 		}
 	}
 
@@ -72,6 +75,7 @@ public class MainActivity extends ListActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+		
 		case R.id.export:
 			if (this.items != null && !this.items.isEmpty()) {
 				File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "saved.xls");
@@ -178,7 +182,8 @@ public class MainActivity extends ListActivity {
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putStringArrayList(KEY_ITEMS, this.items);
+//		outState.putStringArrayList(KEY_ITEMS, this.items);
+		outState.putParcelableArrayList(KEY_ITEMS, this.items);
 	}
 	
 	@Override
@@ -194,19 +199,36 @@ public class MainActivity extends ListActivity {
 		if (intent.getAction().equals(NfcAdapter.ACTION_TAG_DISCOVERED)) {
 			String uid = Utils.byteArrayToHexString(intent.getByteArrayExtra(NfcAdapter.EXTRA_ID));
 			if (this.items.contains(uid)) {
-				Toast.makeText(this, "ERROR! Tag repetido en la posici�n " + this.items.indexOf(uid) + "!", Toast.LENGTH_SHORT).show();
+				Toast.makeText(this, "ERROR! Tag repetido en la posición " + ( this.items.indexOf(uid) + 1) + "!", Toast.LENGTH_SHORT).show();
 			} else {
-				this.items.add(uid);
+				this.items.add(new Tag("Tag " + this.counterInit + this.items.size(), uid));
 				((ArrayAdapter<?>)this.getListAdapter()).notifyDataSetChanged();
 			}
 		}
 	}
 	
-//	@Override
-//	protected void onListItemClick(ListView l, View v, int position, long id) {
-//		super.onListItemClick(l, v, position, id);
-//		this.items.remove(position);
-//		((ArrayAdapter)this.getListAdapter()).notifyDataSetChanged();
-//	}
+	@Override
+	protected void onListItemClick(ListView l, View v, final int position, long id) {
+		super.onListItemClick(l, v, position, id);
+		final EditText et = new EditText(this);
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle("Tag Name");
+		builder.setView(et);
+		builder.setPositiveButton("Ok", new OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				items.get(position).setName(et.getText().toString());
+			}
+		});
+		builder.setNegativeButton("Cancel", new OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+			}
+		});
+		builder.create().show();
+	}
 
 }
