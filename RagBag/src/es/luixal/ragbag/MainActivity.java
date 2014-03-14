@@ -3,15 +3,20 @@ package es.luixal.ragbag;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.nfc.NfcAdapter;
 import android.nfc.tech.IsoDep;
@@ -201,7 +206,7 @@ public class MainActivity extends ListActivity {
 			if (this.items.contains(uid)) {
 				Toast.makeText(this, "ERROR! Tag repetido en la posición " + ( this.items.indexOf(uid) + 1) + "!", Toast.LENGTH_SHORT).show();
 			} else {
-				this.items.add(new Tag("Tag " + this.counterInit + this.items.size(), uid));
+				this.items.add(new Tag("Tag " + this.counterInit + this.items.size(), uid, this.getCurrentLocation()));
 				((ArrayAdapter<?>)this.getListAdapter()).notifyDataSetChanged();
 			}
 		}
@@ -229,6 +234,39 @@ public class MainActivity extends ListActivity {
 			}
 		});
 		builder.create().show();
+	}
+	
+	public Location getCurrentLocation() {
+		// setting criteria for getting providers:
+		Criteria criteria = new Criteria();
+		criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+		criteria.setPowerRequirement(Criteria.POWER_LOW);
+		// getting activated providers and keeping the most recent location from them:
+		LocationManager locationManager = (LocationManager)this.getSystemService(Context.LOCATION_SERVICE);
+	    List<String> providers = locationManager.getProviders(criteria, true);
+	    if (providers.size() > 0) {
+	        Location newestLocation = null;
+	        for (String provider : providers) {
+	            Location location = locationManager.getLastKnownLocation(provider);
+	            if (location != null) {
+	                if (newestLocation == null) {
+	                    newestLocation = location;
+	                } else {
+	                    if (location.getTime() > newestLocation.getTime()) {
+	                        newestLocation = location;
+	                    }
+	                }
+	            }
+	        }
+	        // if not location provided, request it:
+//	        locationManager.requestLocationUpdates(providers.get(0), 0, 0, this);
+	        return newestLocation;
+	    } else {
+//	    	Log.e("TAG", providers.size() + "providers found!");
+//	        LocationDialogFragment dialog = new LocationDialogFragment();
+//	        dialog.show(getSupportFragmentManager(), LocationDialogFragment.class.getName());
+	        return null;
+	    }
 	}
 
 }

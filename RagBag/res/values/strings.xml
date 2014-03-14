@@ -7,5 +7,10 @@
     <string name="menu_export">Export</string>
     <string name="menu_remove">Remove</string>
     <string name="menu_count_init">Count init</string>
+    
+    <string name="location_dialog_message">Es necesario activar algún sistema de localización para poder obtener los picaderos cercanos, ¿quieres activar alguno?</string>
+    <string name="location_dialog_positive_button">Si</string>
+    <string name="location_dialog_negative_button">No</string>
+    <string name="no_location_message">No se podrán encontrar picaderos cercanos a tu posición actual</string>
 
 </resources>

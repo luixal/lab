@@ -6,6 +6,7 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class TagsListAdapter extends ArrayAdapter<Tag> {
@@ -20,6 +21,8 @@ public class TagsListAdapter extends ArrayAdapter<Tag> {
 		((TextView)convertView.findViewById(R.id.id)).setText(position + 1 + "");
 		((TextView)convertView.findViewById(R.id.name)).setText(this.getItem(position).getName());
 		((TextView)convertView.findViewById(R.id.uid)).setText(this.getItem(position).getUuid());
+		int visibility = this.getItem(position).getLocation() == null ? View.INVISIBLE : View.VISIBLE;
+		((ImageView)convertView.findViewById(R.id.geo_icon)).setVisibility(visibility);
 		return convertView;
 	}
 

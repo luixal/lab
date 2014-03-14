@@ -6,19 +6,28 @@
     <TextView android:id="@+id/id"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:minEms="2"
-        android:gravity="left|center_vertical"
         android:layout_alignParentLeft="true"
-        android:padding="10dp"
-        android:layout_marginRight="5dp"
         style="@android:style/TextAppearance.Large"
-        android:background="@android:color/holo_green_dark"/>
+        android:background="@android:color/holo_green_dark"
+        android:minEms="2"/>
+    
+    <ImageView android:id="@+id/geo_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:scaleType="centerInside"
+        android:adjustViewBounds="true"
+        android:src="@android:drawable/ic_menu_mylocation"
+        android:layout_alignParentRight="true"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:padding="5dp"/>
     
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:layout_toRightOf="@id/id"
+        android:layout_toLeftOf="@id/geo_icon"
         android:weightSum="1">
 	    
         <TextView android:id="@+id/name"
