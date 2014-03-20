@@ -17,11 +17,12 @@ public class TagsListAdapter extends ArrayAdapter<Tag> {
 	
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
+		Tag tag = this.getItem(position);
 		if (convertView == null) convertView = View.inflate(this.getContext(), R.layout.tag_list_item, null);
 		((TextView)convertView.findViewById(R.id.id)).setText(position + 1 + "");
-		((TextView)convertView.findViewById(R.id.name)).setText(this.getItem(position).getName());
-		((TextView)convertView.findViewById(R.id.uid)).setText(this.getItem(position).getUuid());
-		int visibility = this.getItem(position).getLocation() == null ? View.INVISIBLE : View.VISIBLE;
+		((TextView)convertView.findViewById(R.id.name)).setText(tag.getName());
+		((TextView)convertView.findViewById(R.id.uid)).setText(tag.getUuid());
+		int visibility = tag.isLocated() ? View.VISIBLE : View.INVISIBLE;
 		((ImageView)convertView.findViewById(R.id.geo_icon)).setVisibility(visibility);
 		return convertView;
 	}

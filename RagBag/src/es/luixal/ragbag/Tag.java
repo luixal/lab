@@ -1,28 +1,52 @@
 package es.luixal.ragbag;
 
+import java.util.List;
+
 import android.location.Location;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class Tag implements Parcelable {
+import com.activeandroid.Model;
+import com.activeandroid.annotation.Column;
+import com.activeandroid.annotation.Table;
+import com.activeandroid.query.Delete;
+import com.activeandroid.query.Select;
 
+@Table(name = "Tags")
+public class Tag extends Model implements Parcelable {
+
+	@Column(name = "name")
 	private String name;
+	@Column(name = "uuid", index = true)
 	private String uuid;
-	private Location location;
+	@Column(name = "latitude")
+	private double latitude;
+	@Column(name = "longitude")
+	private double longitude;
 	
 	
 	public Tag() {
 		super();
 		this.name = "";
 		this.uuid = "";
-		this.location = null;
+		this.latitude = 0;
+		this.longitude = 0;
 	}
 
 	public Tag(String name, String uuid, Location location) {
 		super();
 		this.name = name;
 		this.uuid = uuid;
-		this.location = location;
+		this.latitude = location.getLatitude();
+		this.longitude = location.getLongitude();
+	}
+	
+	public Tag(String name, String uuid, double latitude, double longitude) {
+		super();
+		this.name = name;
+		this.uuid = uuid;
+		this.latitude = latitude;
+		this.longitude = longitude;
 	}
 
 	public String getName() {
@@ -41,18 +65,30 @@ public class Tag implements Parcelable {
 		this.uuid = uuid;
 	}
 
-	public Location getLocation() {
-		return location;
+	public double getLatitude() {
+		return latitude;
 	}
 
-	public void setLocation(Location location) {
-		this.location = location;
+	public void setLatitude(double latitude) {
+		this.latitude = latitude;
+	}
+
+	public double getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(double longitude) {
+		this.longitude = longitude;
+	}
+	
+	public boolean isLocated() {
+		return (this.latitude != 0 || this.longitude != 0);
 	}
 
 	@Override
 	public String toString() {
-		return "Tag [name=" + name + ", uuid=" + uuid + ", location="
-				+ location + "]";
+		return "Tag [name=" + name + ", uuid=" + uuid + ", latitude="
+				+ latitude + ", longitude=" + longitude + "]";
 	}
 
 	@Override
@@ -80,6 +116,14 @@ public class Tag implements Parcelable {
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(this.name);
 		dest.writeString(this.uuid);
+	}
+	
+	public static List<Tag> getAll() {
+		return new Select().from(Tag.class).execute();
+	}
+	
+	public static void removeAll() {
+		new Delete().from(Tag.class).execute();
 	}
 	
 }

@@ -29,6 +29,7 @@ import android.nfc.tech.NfcF;
 import android.nfc.tech.NfcV;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,6 +37,8 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.activeandroid.query.Select;
 
 public class MainActivity extends ListActivity {
 	
@@ -66,7 +69,9 @@ public class MainActivity extends ListActivity {
 //			this.items = savedInstanceState.getStringArrayList(KEY_ITEMS);
 			this.items = savedInstanceState.getParcelableArrayList(KEY_ITEMS);
 		} else {
-			this.items = new ArrayList<Tag>();
+			this.items = (ArrayList<Tag>) Tag.getAll();
+			for (Tag item:items) Log.e("TAG", item.toString());
+			//this.items = new ArrayList<Tag>();
 		}
 	}
 
@@ -121,6 +126,7 @@ public class MainActivity extends ListActivity {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						items.clear();
+						Tag.removeAll();
 						((ArrayAdapter<?>)getListAdapter()).notifyDataSetChanged();
 						dialog.dismiss();
 					}
@@ -206,7 +212,9 @@ public class MainActivity extends ListActivity {
 			if (this.items.contains(uid)) {
 				Toast.makeText(this, "ERROR! Tag repetido en la posición " + ( this.items.indexOf(uid) + 1) + "!", Toast.LENGTH_SHORT).show();
 			} else {
-				this.items.add(new Tag("Tag " + this.counterInit + this.items.size(), uid, this.getCurrentLocation()));
+				Tag tag = new Tag("Tag " + this.counterInit + this.items.size(), uid, this.getCurrentLocation());
+				this.items.add(tag);
+				tag.save();
 				((ArrayAdapter<?>)this.getListAdapter()).notifyDataSetChanged();
 			}
 		}
@@ -224,6 +232,7 @@ public class MainActivity extends ListActivity {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				items.get(position).setName(et.getText().toString());
+				items.get(position).save();
 			}
 		});
 		builder.setNegativeButton("Cancel", new OnClickListener() {
