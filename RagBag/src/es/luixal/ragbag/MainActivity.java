@@ -1,23 +1,15 @@
 package es.luixal.ragbag;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
-import android.app.AlertDialog;
-import android.app.ListActivity;
 import android.app.PendingIntent;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.nfc.NfcAdapter;
 import android.nfc.tech.IsoDep;
 import android.nfc.tech.MifareClassic;
@@ -28,21 +20,15 @@ import android.nfc.tech.NfcB;
 import android.nfc.tech.NfcF;
 import android.nfc.tech.NfcV;
 import android.os.Bundle;
-import android.os.Environment;
-import android.util.Log;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.Toast;
+import es.luixal.ragbag.fragments.TagListFragment;
+import es.luixal.ragbag.listeners.OnNewTagListener;
 
-import com.activeandroid.query.Select;
-
-public class MainActivity extends ListActivity {
+public class MainActivity extends FragmentActivity {
 	
-	private final String KEY_ITEMS = "ITEMS";
+//	private final String KEY_ITEMS = "ITEMS";
 	
 	// list of NFC technologies detected:
 	private final String[][] techList = new String[][] {
@@ -57,122 +43,127 @@ public class MainActivity extends ListActivity {
 			}
 	};
 	
-	private ArrayList<Tag> items;
-	private int counterInit = 0;
+	private List<OnNewTagListener> onNewTagListeners;
+	
+//	private ArrayList<Tag> items;
+//	private int counterInit = 0;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 //		setContentView(R.layout.main_activity);
 		setContentView(R.layout.main_list);
-		if (savedInstanceState != null && savedInstanceState.containsKey(KEY_ITEMS)) {
-//			this.items = savedInstanceState.getStringArrayList(KEY_ITEMS);
-			this.items = savedInstanceState.getParcelableArrayList(KEY_ITEMS);
-		} else {
-			this.items = (ArrayList<Tag>) Tag.getAll();
-			for (Tag item:items) Log.e("TAG", item.toString());
-			//this.items = new ArrayList<Tag>();
-		}
+//		if (savedInstanceState != null && savedInstanceState.containsKey(KEY_ITEMS)) {
+////			this.items = savedInstanceState.getStringArrayList(KEY_ITEMS);
+//			this.items = savedInstanceState.getParcelableArrayList(KEY_ITEMS);
+//		} else {
+//			this.items = (ArrayList<Tag>) Tag.getAll();
+//			for (Tag item:items) Log.e("TAG", item.toString());
+//			//this.items = new ArrayList<Tag>();
+//		}
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main_activity, menu);
-		return true;
-	}
+//	@Override
+//	public boolean onCreateOptionsMenu(Menu menu) {
+//		// Inflate the menu; this adds items to the action bar if it is present.
+//		return true;
+//	}
 	
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		
-		case R.id.export:
-			if (this.items != null && !this.items.isEmpty()) {
-				File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "saved.xls");
-				try {
-					
-					if (this.counterInit == 0) {
-						Utils.exportToExcel(this.items, file.getAbsolutePath());
-					} else {
-						Utils.exportToExcel(this.items, this.counterInit, file.getAbsolutePath());
-					}
-					Toast.makeText(this, "Excel file saved!\n" + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
-					
-					Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-					sharingIntent.setType("application/vnd.ms-excel");
-					sharingIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
-					
-					try {
-						startActivity(sharingIntent);
-					} catch (ActivityNotFoundException ex) {
-						Toast.makeText(this, "Excel file saved!\n", Toast.LENGTH_SHORT).show();
-					}
-					
-				} catch (IOException e) {
-					Toast.makeText(this, "ERROR saving Excel file", Toast.LENGTH_SHORT).show();
-					e.printStackTrace();
-				}
-			} else {
-				Toast.makeText(this, "No data to export", Toast.LENGTH_SHORT).show();
-			}
-			break;
-			
-		case R.id.remove:
-			if (this.items != null && !this.items.isEmpty()) {
-				AlertDialog.Builder builder = new AlertDialog.Builder(this);
-				builder.setMessage("Are you sure you wanto to remove ALL LIST ITEMS?");
-				builder.setPositiveButton("YES", new OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						items.clear();
-						Tag.removeAll();
-						((ArrayAdapter<?>)getListAdapter()).notifyDataSetChanged();
-						dialog.dismiss();
-					}
-				});
-				builder.setNegativeButton("No", new OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-					}
-				});
-				builder.create().show();
-			}
-			break;
-			
-		case R.id.count_init:
-			final EditText et = new EditText(this);
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setTitle("Counter init");
-			builder.setView(et);
-			builder.setPositiveButton("Ok", new OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					counterInit = Integer.parseInt(et.getText().toString());
-				}
-			});
-			builder.setNegativeButton("Cancel", new OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					dialog.dismiss();
-				}
-			});
-			builder.create().show();
-			
-		default:
-			break;
-		}
-		return super.onOptionsItemSelected(item);
-	}
+//	@Override
+//	public boolean onOptionsItemSelected(MenuItem item) {
+//		switch (item.getItemId()) {
+//		
+//		case R.id.export:
+//			if (this.items != null && !this.items.isEmpty()) {
+//				File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "saved.xls");
+//				try {
+//					
+//					if (this.counterInit == 0) {
+//						Utils.exportToExcel(this.items, file.getAbsolutePath());
+//					} else {
+//						Utils.exportToExcel(this.items, this.counterInit, file.getAbsolutePath());
+//					}
+//					Toast.makeText(this, "Excel file saved!\n" + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+//					
+//					Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+//					sharingIntent.setType("application/vnd.ms-excel");
+//					sharingIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+//					
+//					try {
+//						startActivity(sharingIntent);
+//					} catch (ActivityNotFoundException ex) {
+//						Toast.makeText(this, "Excel file saved!\n", Toast.LENGTH_SHORT).show();
+//					}
+//					
+//				} catch (IOException e) {
+//					Toast.makeText(this, "ERROR saving Excel file", Toast.LENGTH_SHORT).show();
+//					e.printStackTrace();
+//				}
+//			} else {
+//				Toast.makeText(this, "No data to export", Toast.LENGTH_SHORT).show();
+//			}
+//			break;
+//			
+//		case R.id.remove:
+//			if (this.items != null && !this.items.isEmpty()) {
+//				AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//				builder.setMessage("Are you sure you wanto to remove ALL LIST ITEMS?");
+//				builder.setPositiveButton("YES", new OnClickListener() {
+//					
+//					@Override
+//					public void onClick(DialogInterface dialog, int which) {
+//						items.clear();
+//						Tag.removeAll();
+//						((ArrayAdapter<?>)getListAdapter()).notifyDataSetChanged();
+//						dialog.dismiss();
+//					}
+//				});
+//				builder.setNegativeButton("No", new OnClickListener() {
+//					
+//					@Override
+//					public void onClick(DialogInterface dialog, int which) {
+//						dialog.dismiss();
+//					}
+//				});
+//				builder.create().show();
+//			}
+//			break;
+//			
+//		case R.id.count_init:
+//			final EditText et = new EditText(this);
+//			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//			builder.setTitle("Counter init");
+//			builder.setView(et);
+//			builder.setPositiveButton("Ok", new OnClickListener() {
+//				
+//				@Override
+//				public void onClick(DialogInterface dialog, int which) {
+//					counterInit = Integer.parseInt(et.getText().toString());
+//				}
+//			});
+//			builder.setNegativeButton("Cancel", new OnClickListener() {
+//				
+//				@Override
+//				public void onClick(DialogInterface dialog, int which) {
+//					dialog.dismiss();
+//				}
+//			});
+//			builder.create().show();
+//			
+//		default:
+//			break;
+//		}
+//		return super.onOptionsItemSelected(item);
+//	}
 	
 	@Override
 	protected void onStart() {
 		super.onStart();
-		this.setListAdapter(new TagsListAdapter(this, this.items));
+		TagListFragment fragment = new TagListFragment();
+		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		ft.add(R.id.fragment_container, fragment);
+		ft.commit();
+//		this.setListAdapter(new TagsListAdapter(this, this.items));
 	}
 	
 	@Override
@@ -194,7 +185,7 @@ public class MainActivity extends ListActivity {
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 //		outState.putStringArrayList(KEY_ITEMS, this.items);
-		outState.putParcelableArrayList(KEY_ITEMS, this.items);
+//		outState.putParcelableArrayList(KEY_ITEMS, this.items);
 	}
 	
 	@Override
@@ -208,42 +199,40 @@ public class MainActivity extends ListActivity {
 	@Override
 	protected void onNewIntent(final Intent intent) {
 		if (intent.getAction().equals(NfcAdapter.ACTION_TAG_DISCOVERED)) {
-			String uid = Utils.byteArrayToHexString(intent.getByteArrayExtra(NfcAdapter.EXTRA_ID));
-			if (this.items.contains(uid)) {
-				Toast.makeText(this, "ERROR! Tag repetido en la posición " + ( this.items.indexOf(uid) + 1) + "!", Toast.LENGTH_SHORT).show();
-			} else {
-				Tag tag = new Tag("Tag " + this.counterInit + this.items.size(), uid, this.getCurrentLocation());
-				this.items.add(tag);
-				tag.save();
-				((ArrayAdapter<?>)this.getListAdapter()).notifyDataSetChanged();
-			}
+//			String uid = Utils.byteArrayToHexString(intent.getByteArrayExtra(NfcAdapter.EXTRA_ID));
+			Tag tag = new Tag(
+					"Tag",
+					Utils.byteArrayToHexString(intent.getByteArrayExtra(NfcAdapter.EXTRA_ID)),
+					this.getCurrentLocation());
+			// notifying listeners:
+			if (this.onNewTagListeners != null) for (OnNewTagListener listener:this.onNewTagListeners) listener.onNewTag(tag);
 		}
 	}
 	
-	@Override
-	protected void onListItemClick(ListView l, View v, final int position, long id) {
-		super.onListItemClick(l, v, position, id);
-		final EditText et = new EditText(this);
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle("Tag Name");
-		builder.setView(et);
-		builder.setPositiveButton("Ok", new OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				items.get(position).setName(et.getText().toString());
-				items.get(position).save();
-			}
-		});
-		builder.setNegativeButton("Cancel", new OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-			}
-		});
-		builder.create().show();
-	}
+//	@Override
+//	protected void onListItemClick(ListView l, View v, final int position, long id) {
+//		super.onListItemClick(l, v, position, id);
+//		final EditText et = new EditText(this);
+//		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//		builder.setTitle("Tag Name");
+//		builder.setView(et);
+//		builder.setPositiveButton("Ok", new OnClickListener() {
+//			
+//			@Override
+//			public void onClick(DialogInterface dialog, int which) {
+//				items.get(position).setName(et.getText().toString());
+//				items.get(position).save();
+//			}
+//		});
+//		builder.setNegativeButton("Cancel", new OnClickListener() {
+//			
+//			@Override
+//			public void onClick(DialogInterface dialog, int which) {
+//				dialog.dismiss();
+//			}
+//		});
+//		builder.create().show();
+//	}
 	
 	public Location getCurrentLocation() {
 		// setting criteria for getting providers:
@@ -276,6 +265,16 @@ public class MainActivity extends ListActivity {
 //	        dialog.show(getSupportFragmentManager(), LocationDialogFragment.class.getName());
 	        return null;
 	    }
+	}
+	
+	public void registerOnNewTagListener(OnNewTagListener listener) {
+		if (this.onNewTagListeners == null) this.onNewTagListeners = new LinkedList<OnNewTagListener>();
+		this.onNewTagListeners.add(listener);
+	}
+	
+	public boolean unregisterOnNewTagListener(OnNewTagListener listener) {
+		if (this.onNewTagListeners != null) return this.onNewTagListeners.remove(listener);
+		return false;
 	}
 
 }
